@@ -24,7 +24,7 @@ class SendOrderMessage
     public function handle(object $event): void
     {
         $order = $event->order;
-        $user = User::where('id',$order->user_id)->first();
+        $user = User::where('id', $order->user_id)->first();
         $user->notify(new OrderNotification($order));
         // Notification::send($user,new OrderNotification);
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Enums\OrderStatus;
+use App\Events\OrderDerived;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderAddress;
@@ -33,7 +34,7 @@ class OrdersController extends Controller
     public function update(Order $order): JsonResponse
     {
         $bool = $this->orderService->update($order);
-
+        OrderDerived::dispatch($order);
         return Response::json([
             'url' => route('dashboard.orders.index'),
         ]);

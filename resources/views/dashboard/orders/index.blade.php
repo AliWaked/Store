@@ -11,8 +11,8 @@
                         <th class="w-2/12 ">Name</th>
                         <th class="w-4/12 ">Email</th>
                         <th class="w-1/12 ">total price</th>
-                        <th class="w-2/12 ml-4">date</th>
-                        <th class="w-2/12 ">status</th>
+                        <th class="w-2/12 ml-4 relative left-4">date</th>
+                        <th class="w-2/12 relative left-6">status</th>
                         <th class="w-1/12 ">action</th>
                     </tr>
                 </thead>
@@ -34,7 +34,7 @@
                             </td>
                             <td class="w-2/12 capitalize">
                                 <span
-                                    class="@if ($order->status->value == 'delivered') bg-green-500 @else bg-gray-900 @endif capitalize text-white font-semibold h-8 w-24 flex justify-center items-center rounded-md"
+                                    class="@if ($order->status->value == 'delivered') bg-green-500 @else bg-gray-900 @endif capitalize text-white font-semibold h-8 w-[120px] flex justify-center items-center rounded-md"
                                     style="text-wrap:nowrap">{{ $order->status }}</span>
                             </td>
                             <td class="w-1/12 ">

@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\OrderDerived;
 use App\Events\OrderEvent;
+use App\Listeners\Order;
 use App\Listeners\SendOrderMessage;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -23,6 +25,9 @@ class EventServiceProvider extends ServiceProvider
         OrderEvent::class => [
             SendOrderMessage::class,
         ],
+        OrderDerived::class => [
+            Order::class,
+        ]
     ];
 
     /**
