@@ -7,9 +7,8 @@ use Illuminate\Support\Collection;
 interface CartRepository
 {
     public function get(): Collection;
-    public function add($id, $options, $quantity): void;
-    public function update($id, $options, $quantity): void;
-    public function delete($id,$options): void;
+    public function addOrUpdate(int $id, int $color_id, int $quantity): void;
+    public function delete(int $id, int $color_id, string $size): void;
     public function empty(): void;
     public function total(): float;
 }

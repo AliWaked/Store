@@ -3,56 +3,83 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
+
+    const DISK = 'public';
+
     protected $fillable = [
-        'product_name', 'category_id', 'price', 'slug', 'product_image'
+        'product_name',
+        'category_id',
+        'price',
+        'slug',
+        'product_image',
+        'department_id',
     ];
-    public static function rules($id = 0)
+
+    protected static function booted(): void
     {
-        return [
-            'product_name' => "required|string|min:3|max:255|unique:products,product_name,$id",
-            'color' => [
-                function ($attribute, $value, $fails) {
-                    foreach ($value as $size => $colors) {
-                        if (!in_array($size, ['xl', 'l', 'm', 's'])) {
-                            $fails("this size ($size) not found");
-                        }
-                        foreach ($colors as $color) {
-                            if (in_array($color, ['red', 'blue', 'green', 'yellow', 'black', 'white', 'orange', 'gray'])) {
-                                continue;
-                            }
-                            $fails('this size is not found');
-                        }
-                    }
-                }
-            ],
-            'category_id' => 'required|integer|exists:categories,id',
-            // 'product_image' => 'required|image|dimensions:min_height=100,min_width=100',
-            'price' => 'required|numeric|gt:0',
-            'department' => 'required|array',
-        ];
+        static::forceDeleted(function (Product $product) {
+            static::deleteImage($product->product_image);
+        });
     }
-    public function category()
+
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
-    public function colors()
+
+    public function colors(): BelongsToMany
     {
-        return $this->belongsToMany(Color::class, 'product_color', 'product_id', 'color_id', 'id', 'id')->using(ProductColor::class)->withPivot(['size']);
+        return $this->belongsToMany(Color::class, 'product_color')->withPivot(['size']);
     }
-    public function departments()
+
+    public function department(): BelongsTo
     {
-        return $this->belongsToMany(Department::class);
+        return $this->belongsTo(Department::class);
     }
-    public function users()
+
+    public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class,'porduct_user')->withPivot(['favourite','reviews','comment','updated_at']);
+        return $this->belongsToMany(User::class, 'porduct_user')->withPivot(['is_favourite', 'reviews', 'comment', 'updated_at']);
+    }
+
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => Storage::disk(self::DISK)->url($this->product_image),
+        );
+    }
+
+    public function scopeSearch(Builder $builder, ?array $data): void
+    {
+        $builder->when($data['category_name'] ?? false, function (Builder $builder, string $value) use ($data) {
+            $builder->where('category_id', $value);
+            $builder->when($data['size_name'] ?? false, function (Builder $builder, string $value) use ($data) {
+                $builder->whereHas('colors', function (Builder $builder) use ($value, $data) {
+                    $builder->where('product_color.size', $value);
+                    $builder->when($data['color_name'] ?? false, function (Builder $builder, string $value) {
+                        $builder->where('colors.color_name', $value);
+                    });
+                });
+            });
+        });
+    }
+
+    public static function deleteImage(string $path): bool
+    {
+        return Storage::disk(static::DISK)->delete($path);
     }
 
     public function scopeFilter(Builder $builder, $filter)
@@ -61,7 +88,6 @@ class Product extends Model
             $builder->where('size', $size);
             $builder->when($filter['color'] ?? false, function (Builder $builder, $color) {
                 $builder->where('color', $color);
-                // $builder->whereIn()
             });
         });
     }

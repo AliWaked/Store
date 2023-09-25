@@ -2,30 +2,40 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderAddress;
+use App\Services\Dashboard\OrderService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\View\View;
 
 class OrdersController extends Controller
 {
-    public function index()
+    public function __construct(protected OrderService $orderService)
     {
-        $orders = Order::paginate();
-        return view('dashboard.orders.index', compact('orders'));
+        //
     }
-    public function show(Order $order)
+    public function index(): View
     {
-        // dd(route('dashboard.orders.index'));
-        $address = OrderAddress::where('order_id', $order->id)->first();
-        $total = $order->OrderItems()->get()->sum(function ($item) {
-            return $item->price;
-        });
-        return view('dashboard.orders.show', compact('order', 'address', 'total'));
+        return view('dashboard.orders.index', [
+            'orders' => Order::with('user')->withSum('orderItems as total_price', 'price')->paginate(),
+        ]);
     }
-    public function update(Request $request, Order $order)
+    public function show(Order $order): View
     {
-        $order->update(['status' => 'delivered']);
-        return route('dashboard.orders.index');
+        $order->load(['address', 'user'])->loadCount('orderItems')->loadSum('orderItems as total_price', 'price');
+        return view('dashboard.orders.show', compact('order'));
+    }
+    public function update(Order $order): JsonResponse
+    {
+        $bool = $this->orderService->update($order);
+
+        return Response::json([
+            'url' => route('dashboard.orders.index'),
+        ]);
     }
 }

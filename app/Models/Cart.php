@@ -3,30 +3,43 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 
 class Cart extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
-    public $incrementing = false;
     protected $fillable = [
-        'cookie_id', 'quantity', 'product_id', 'user_id', 'options'
+        'cookie_id',
+        'quantity',
+        'product_id',
+        'user_id',
+        'color_id',
+        'size',
     ];
-    protected $casts = [
-        'options' => 'json'
-    ];
-    protected static function booted()
+
+    protected static function booted(): void
     {
-        static::creating(function (Cart $cart) {
-            $cart->id = Str::uuid();
-        });
         static::addGlobalScope('cookie_id', function (Builder $builder) {
             $builder->where('cookie_id', static::getCookieId());
         });
+    }
+    public function color(): BelongsTo
+    {
+        return $this->belongsTo(Color::class);
+    }
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
     public static function getCookieId()
     {
@@ -36,13 +49,5 @@ class Cart extends Model
             Cookie::queue('cart_id', $cookie_id, 30 * 24 * 60);
         }
         return $cookie_id;
-    }
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
-    public function user()
-    {
-        return $this->belongsTo(User::class);
     }
 }

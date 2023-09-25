@@ -2,60 +2,91 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Srmklive\PayPal\Facades\PayPal;
 use Srmklive\PayPal\Services\ExpressCheckout;
 use Srmklive\PayPal\Services\AdaptivePayments;
-
+use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use App\Http\Controllers\Controller;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class PaymentController extends Controller
 {
-    public function payment()
+    public function payment(Request $request, Order $order)
     {
-        $provider = new ExpressCheckout;
-        // $provider = new AdaptivePayments;
-
-        // $provider = PayPal::setProvider('express_checkout');
-        // $provider = PayPal::setProvider('adaptive_payments');  
-
-        $orderId = Order::where('user_id', Auth::id())->where('status', 'not delivered')->where('payment_stauts', 'pending')->last()->id;
-        $orderItem = OrderItem::where('order_id', $orderId)->get();
-
-        $data = [];
-        foreach ($orderItem as $item) {
-            $data['items'][] = [
-                'name' => $item->product_name,
-                'price' => $item->price,
-                'desc'  => 'the color is '. $item->color . ' and the size is ' . $item->size,
-                'qty' => $item->quantity
-            ];
+        // return Response::json([
+        //     'message' => 'success',
+        // ]);
+        $provider = new PayPalClient;
+        $provider->setApiCredentials(config('paypal'));
+        $paypalToken = $provider->getAccessToken();
+        $response = $provider->createOrder([
+            "intent" => "CAPTURE",
+            "application_context" => [
+                "return_url" => route('success.payment', $order->id),
+                "cancel_url" => route('cancel.payment', $order->id),
+            ],
+            "purchase_units" => [
+                0 => [
+                    "amount" => [
+                        "currency_code" => "USD",
+                        "value" => $order->orderItems->sum(function ($item) {
+                            return $item->price;
+                        }) + 5 ?? 5,
+                    ]
+                ]
+            ]
+        ]);
+        if (isset($response['id']) && $response['id'] != null) {
+            foreach ($response['links'] as $links) {
+                if ($links['rel'] == 'approve') {
+                    return redirect()->away($links['href']);
+                }
+            }
+            return redirect()
+                ->route('cancel.payment')
+                ->with('error', 'Something went wrong.');
+        } else {
+            return redirect()
+                ->route('create.payment', ['order' => $order->id])
+                ->with('error', $response['message'] ?? 'Something went wrong.');
         }
-        $data['invoice_id'] = $orderId;
-        $data['invoice_description'] = "Order #{$data['invoice_id']} Invoice";
-        $data['return_url'] = url('/payment/success');
-        $data['cancel_url'] = url('/cart');
+    }
+    public function store(Request $request, Order $order)
+    {
+        $order->status = OrderStatus::NOTDELIVERED->value;
+        $order->payment_status = PaymentStatus::PENDING->value;
+        $order->save();
+        return to_route('checkout')->with('success','success pay');
+        // dd($request,$order->status);
+    }
 
-        $total = 0;
-        foreach ($data['items'] as $item) {
-            $total += $item['price'] * $item['qty'];
+    public function cancel()
+    {
+        return redirect()
+            ->route('create.payment')
+            ->with('error',  'You have canceled the transaction.');
+    }
+
+    public function success(Request $request, $order)
+    {
+        $provider = new PayPalClient;
+        $provider->setApiCredentials(config('paypal'));
+        $provider->getAccessToken();
+        $response = $provider->capturePaymentOrder($request['token']);
+        if (isset($response['status']) && $response['status'] == 'COMPLETED') {
+            return redirect()
+                ->route('create.payment', ['order' => $order])
+                ->with('success', 'Transaction complete.');
+        } else {
+            return redirect()
+                ->route('create.payment', ['order' => $order])
+                ->with('error', $response['message'] ?? 'Something went wrong.');
         }
-
-        $data['total'] = $total;
-
-        // //give a discount of 10% of the order amount
-        // $data['shipping_discount'] = round((10 / 100) * $total, 2);
-
-
-        $response = $provider->setExpressCheckout($data);
-
-        // Use the following line when creating recurring payment profiles (subscriptions)
-        $response = $provider->setExpressCheckout($data, true);
-
-        // This will redirect user to PayPal
-        return redirect($response['paypal_link']);
     }
 }

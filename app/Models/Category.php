@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\CategoryStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
@@ -12,24 +17,23 @@ class Category extends Model
     protected $fillable = [
         'name', 'category_logo', 'parent_id', 'slug', 'status',
     ];
-    public static function rules($id = 0)
+    protected $casts = [
+        'status' => CategoryStatus::class,
+    ];
+    public function parent(): BelongsTo
     {
-        return [
-            'name' => "required|string|min:3|max:255|unique:categories,name,$id",
-            'status' => 'required|string|in:active,archive',
-            'parent_id' => 'nullable|int|exists:categories,id',
-            // 'category_logo' => 'required|image',
-            'department' => 'required|array',
-        ];
+        return $this->belongsTo(Category::class, 'parent_id', 'id')->withDefault(['name' => '_']);
     }
-    public function parent()
+    public function products(): HasMany
     {
-        return $this->belongsTo(Category::class, 'parent_id', 'id')->withDefault(['name'=>'_']);
+        return $this->hasMany(Product::class, 'category_id');
     }
-    public function products() {
-        return $this->hasMany(Product::class,'category_id');
-    }
-    public function departments() {
+    public function departments(): BelongsToMany
+    {
         return $this->belongsToMany(Department::class);
+    }
+    public function scopeStatus(Builder $builder): void
+    {
+        $builder->whereStatus(CategoryStatus::ACTIVE->value);
     }
 }

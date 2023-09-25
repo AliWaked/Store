@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Size;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,8 +17,9 @@ return new class extends Migration
             $table->uuid('cookie_id');
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignId('color_id')->nullable()->constrained('colors')->nullOnDelete();
             $table->unsignedSmallInteger('quantity')->default(1);
-            $table->json('options')->nullable();
+            $table->enum('size', Size::getValues());
             $table->timestamps();
         });
     }

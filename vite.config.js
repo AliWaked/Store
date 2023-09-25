@@ -2,6 +2,11 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
+    server: {
+        hmr: {
+            host: 'localhost',
+        }
+    },
     plugins: [
         laravel({
             input: [
@@ -14,6 +19,7 @@ export default defineConfig({
                 'resources/js/cart.js',
                 'resources/js/checkout.js',
                 'resources/js/order.js',
+                'resources/js/home.js',
             ],
             refresh: true,
         }),

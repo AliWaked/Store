@@ -11,7 +11,9 @@ class ProductColor extends Pivot
     use HasFactory;
     protected $table = 'product_color'; // 'product_colors' => by default
     protected $fillable = [
-        'product_id', 'color_id', 'size',
+        'product_id',
+        'color_id',
+        'size',
     ];
     public function product()
     {

@@ -11,8 +11,8 @@
 </head>
 
 <body>
-    <nav class="navbar h-24 w-full z-50">
-        <div class="flex justify-between py-5 shadow-lg px-8 fixed top-0 left-0 w-full bg-white">
+    <nav class="navbar h-24 w-full relative z-50">
+        <div class="flex justify-between py-5 shadow-sm px-8 fixed top-0 left-0 w-full bg-white">
             <div class="logo select-none font-bold text-3xl">Store</div>
             <div class="links font-semibold text-lg uppercase">
                 <a href="/" class="inline-block mr-3 hover:text-red-500 transition ">home</a>
@@ -34,7 +34,9 @@
             </div>
         </div>
     </nav>
-    {{ $slot }}
+    <div class=" relative min-h-[450px]">
+        {{ $slot }}
+    </div>
     <footer class="w-full mt-12 bg-gray-900 py-12 text-white font-semibold ">
         <div class="flex justify-around">
             <div class="app-name w-1/4 ml-8">

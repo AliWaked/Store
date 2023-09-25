@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('porduct_user', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('product_id')->constrained('products');
-            $table->enum('favourite', ['yes', 'no'])->default('no');
+            // $table->enum('favourite', ['yes', 'no'])->default('no');
+            $table->boolean('is_favourite')->default(0);
             $table->unsignedSmallInteger('reviews')->default(0);
             $table->text('comment')->nullable();
             $table->primary(['user_id', 'product_id']);

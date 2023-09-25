@@ -1,8 +1,8 @@
 <x-dashboard.layout>
     @vite('resources/js/order.js')
-    <div class="w-10/12 mx-auto mt-4">
+    <div class=" w-11/12 mx-auto mt-4">
         <a href="{{ route('dashboard.orders.index') }}"
-            class="font-semibold inline-block mb-16 px-4 py-2 bg-slate-800 text-white mt-4 hover:bg-white border-2 border-slate-800 hover:bg-transparent transition hover:text-slate-800 rounded-lg">
+            class="font-semibold inline-block mb-16 px-4 py-2 bg-slate-800 text-white mt-4 hover:bg-white border-2 border-slate-800 hover:bg-transparent transition hover:text-slate-800 rounded-md">
             Back To Orders</a>
         <div class="info flex  gap-x-12 mb-16">
             <div class="flex w-1/3">
@@ -11,9 +11,9 @@
                 <p class="text-gray-500 ml-4">
                     <span class="text-black font-bold">Customer</span>
                     <br>
-                    {{ Auth::user()->name }}
+                    {{ $order->user->name }}
                     <br>
-                    {{ Auth::user()->email }}
+                    {{ $order->user->email }}
                 </p>
             </div>
             <div class="flex w-1/3">
@@ -22,9 +22,9 @@
                 <p class="text-gray-500 ml-4">
                     <span class="text-black font-bold">Order Info</span>
                     <br>
-                    {{ 'Postal Code: ' . $address->postal_code }}
+                    {{ 'Postal Code: ' . $order->address->postal_code }}
                     <br>
-                    {{ 'Total Price: $' . $total + 5 }}
+                    {{ 'Total Price: $' . $order->total_price + 5 }}
                 </p>
             </div>
             <div class="flex w-1/3">
@@ -33,11 +33,11 @@
                 <p class="text-gray-500 ml-4">
                     <span class="text-black font-bold">Deleiver to</span>
                     <br>
-                    {{ $address->street }}
+                    {{ $order->address->street }}
                     <br>
-                    {{ $address->city }}
+                    {{ $order->address->city }}
                     <br>
-                    {{ $address->countiry }}
+                    {{ $order->address->countiry }}
                 </p>
             </div>
 
@@ -82,11 +82,11 @@
         <div class="p-12 shadow-lg w-[250px] mt-16 ml-auto capitalize">
             {{-- <span class="text-3xl uppercase font-semibold block text-center">order summary</span> --}}
             <p class="text-right text-gray-700">
-                sub total: $ {{ $total }}
+                sub total: $ {{ $order->total_price }}
                 <br>
                 tax: $5
                 <br>
-                total price: ${{ $total - 5 }}
+                total price: ${{ $order->total_price + 5 }}
             </p>
 
         </div>

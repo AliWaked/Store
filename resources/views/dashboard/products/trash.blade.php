@@ -6,15 +6,15 @@
     @if (count($products) > 0)
         <section class="department-index ml-8">
             <table class=" w-[1080px] mb-12">
-                <thead class="bg-red-500 text-white py-6 px-6 block rounded-tl-xl rounded-tr-xl">
+                <thead class="bg-red-500 text-white py-6 px-6 block rounded-tl-md rounded-tr-md">
                     <tr class="flex items-center justify-center text-center capitalize">
-                        <th class="w-1/6 ">product image</th>
-                        <th class="w-1/6 ">product number</th>
-                        <th class="w-1/6 ">product name</th>
-                        <th class="w-1/6 ">price</th>
-                        <th class="w-1/6 ">Category </th>
-                        <th class="w-1/12 ">edit</th>
-                        <th class="w-1/12">delete</th>
+                        {{-- <th class="w-1/6 ">product image</th> --}}
+                        <th class="w-1/5 ">product number</th>
+                        <th class="w-1/5 ">product name</th>
+                        <th class="w-1/5 ">price</th>
+                        <th class="w-1/5 ">Category </th>
+                        <th class="w-[10%] ">edit</th>
+                        <th class="w-[10%]">delete</th>
                     </tr>
                 </thead>
                 <tbody class=" block text-center ">
@@ -23,33 +23,33 @@
                     @endphp
                     @foreach ($products as $product)
                         <tr
-                            class="flex items-center justify-center @if ($number++ % 2 == 0) bg-gray-200 @endif py-8 px-6 ">
-                            <td class="w-1/6 ">
+                            class="flex items-center text-gray-600 justify-center @if ($number++ % 2 == 0) bg-gray-100 @else bg-gray-50 @endif py-4 px-4 ">
+                            {{-- <td class="w-1/6 ">
                                 <img src="{{ asset('storage/' . $product->product_image) }}" alt="category image"
                                     class="w-20 h-20 rounded-lg mx-auto">
-                            </td>
-                            <td class="w-1/6 ">{{ $product->id }}</td>
-                            <td class="w-1/6 capitalize">{{ $product->product_name }}</td>
-                            <td class="w-1/6 text-lg ">
+                            </td> --}}
+                            <td class="w-1/5 ">{{ $product->id }}</td>
+                            <td class="w-1/5 capitalize">{{ $product->product_name }}</td>
+                            <td class="w-1/5 text-lg ">
                                 {{ $product->price }}</td>
-                            <td class="w-1/6 capitalize">{{ $product->category?->name ?? 'trashed' }}</td>
-                            <td class="w-1/12 ">
+                            <td class="w-1/5 capitalize">{{ $product->category?->name ?? 'trashed' }}</td>
+                            <td class="w-[10%] ">
                                 <form action="{{ route('dashboard.products.restore', $product->id) }}" method="post">
                                     @csrf
                                     @method('put')
                                     <button type="submit"
-                                        class="box-border inline-block w-4/6 hover:bg-orange-200 py-2 rounded-md"><i
-                                            class="fa-solid fa-rotate text-yellow-600"></i></button>
+                                        class="box-border inline-block w-[50px] hover:bg-orange-100 py-2 rounded-md"><i
+                                            class="fa-solid fa-rotate text-yellow-500"></i></button>
                                 </form>
                             </td>
-                            <td class="w-1/12 box-border">
+                            <td class="w-[10%] box-border">
                                 <form action="{{ route('dashboard.products.force-delete', $product->id) }}"
                                     class="" method="post">
                                     @csrf
                                     @method('delete')
                                     <button type="submit"
-                                        class="box-border inline-block w-4/6 hover:bg-red-200 py-2 rounded-md"><i
-                                            class="fa-solid fa-trash text-red-700"></i></button>
+                                        class="box-border inline-block w-[50px] hover:bg-red-100 py-2 rounded-md"><i
+                                            class="fa-solid fa-trash text-red-500"></i></button>
                                 </form>
                             </td>
                         </tr>

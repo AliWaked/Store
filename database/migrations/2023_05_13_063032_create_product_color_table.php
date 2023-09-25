@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Size;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->foreignId('color_id')->nullable()->constrained('colors')->nullOnDelete();
-            $table->enum('size', ['xl', 'l', 'm', 's']);
+            $table->enum('size', Size::getValues());
             $table->unique(['product_id', 'color_id', 'size']);
             $table->timestamps();
         });

@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\Colors;
+use App\Enums\Size;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +20,8 @@ return new class extends Migration
             $table->string('product_name');
             $table->float('price');
             $table->unsignedSmallInteger('quantity')->default(1);
-            $table->enum('size', ['xl', 'l', 'm', 's']);
-            $table->enum('color', ['red', 'blue', 'green', 'yellow', 'black', 'white', 'orange', 'gray']);
+            $table->enum('size', Size::getValues());
+            $table->enum('color', Colors::getValues());
             // $table->unique(['order_id','product_id']);
         });
     }

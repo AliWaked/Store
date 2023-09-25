@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('categories', function (Blueprint $table) {
-            $table->enum('status', ['active', 'archive'])->after('category_logo');
+            $table->enum('status', \App\Enums\CategoryStatus::getValues())->after('category_logo');
         });
     }
 

@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -23,6 +25,7 @@ class User extends Authenticatable
         'password',
         'provider',
         'provider_id',
+        'is_admin',
     ];
 
     /**
@@ -42,5 +45,18 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'porduct_user')->using(ProductUser::class)->withPivot([
+            'is_favourite',
+            'reviews',
+            'comment',
+        ]);
+    }
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
 }

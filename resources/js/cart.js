@@ -7,7 +7,7 @@
             method: 'delete',
             data : {
                 size : $(this).data('size'),
-                color: $(this).data('color'),
+                color_id: $(this).data('color'),
                 // product: parent,
                 _token : csrf_token,
             },

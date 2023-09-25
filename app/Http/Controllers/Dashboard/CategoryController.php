@@ -8,40 +8,44 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CategoryRequest;
 use App\Models\CategoryDepartment;
 use App\Models\Department;
+use App\Services\Dashboard\CategoriesService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
+    public function __construct(protected CategoriesService $categoriesService)
+    {
+        //  
+    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
-        $categoies = Category::with(['products'])->paginate();
-        return view('dashboard.categories.index', ['categories' => $categoies,]);
+        return view('dashboard.categories.index', ['categories' => $this->categoriesService->getCategories()]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-        return view('dashboard.categories.create', ['categories' => Category::whereNull('parent_id')->get(), 'departments' => $this->getDepartmentsName()]);
+        return view('dashboard.categories.create', $this->categoriesService->getDataForCreate());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request): RedirectResponse
     {
-        $request->validate([...Category::rules(), 'category_logo' => 'required|image|dimensions:min_width=100,min_height=100']);
-        $data = $this->uploadImage($request);
         DB::beginTransaction();
         try {
-            $category = Category::create($data);
-            $this->createDepartmentCategory($data, $category);
+            $this->categoriesService->create($request->validated());
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -53,97 +57,65 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Category $category)
+    public function edit(Category $category): View
     {
-        $categories = Category::whereNull('parent_id')->where('id', '<>', $category->id)->get();
-        $departments = $this->getDepartmentsName();
-        foreach ($category->departments()->get() as $dept) {
-            $departmentCategory[] = $dept['department-name'];
-        }
-        return view('dashboard.categories.edit', compact('category', 'categories', 'departments', 'departmentCategory'));
+        return view('dashboard.categories.edit', $this->categoriesService->getDataForUpdate($category));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Category $category)
+    public function update(CategoryRequest $request, Category $category): RedirectResponse
     {
-        $request->validate([...Category::rules($category->id), 'category_logo' => 'nullable|image|dimensions:min_width=100,min_height=100']);
-        $path = $category->category_logo;
-        $data = $this->uploadImage($request);
         DB::beginTransaction();
         try {
-            $category->update($data);
-            CategoryDepartment::where('category_id', $category->id)->delete();
-            $this->createDepartmentCategory($data, $category);
+            $path = $this->categoriesService->update($category, $request->validated());
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
-        if ($data['category_logo']) {
-            Storage::disk('public')->delete($path);
-        }
+        $this->removeImage($path);
         return to_route('dashboard.categories.index')->with('success', 'updated the category successfly');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy(Category $category): RedirectResponse
     {
-        $category->delete();
-        return to_route('dashboard.categories.index')->with('delete', 'deleted this category saccessfly and put in trash');
+        $this->categoriesService->delete($category);
+        return to_route('dashboard.categories.index')->with('success', 'deleted this category saccessfly and put in trash');
     }
-    public function trash()
+    public function trash(): View
     {
-        $categories = Category::onlyTrashed()->paginate(2);
-        return view('dashboard.categories.trash', compact('categories'));
+        return view('dashboard.categories.trash', [
+            'categories' => $this->categoriesService->getTrashedCategories(),
+        ]);
     }
-    public function restore($id)
+    public function restore(string $id): RedirectResponse
     {
-        $category = Category::onlyTrashed()->findOrFail($id)->restore();
+        $this->categoriesService->restore($id);
         return redirect()->route('dashboard.categories.index')->with('success', 'restore this category successfly');
     }
-    public function forceDelete($id)
+    public function forceDelete(string $id): RedirectResponse
     {
-        $category = Category::onlyTrashed()->findOrFail($id);
+
         DB::beginTransaction();
         try {
-            // Product::where('category_id', $category)->forceDelete();
-            CategoryDepartment::where('category_id', $category->id)->delete();
-            $category->forceDelete();
-        } catch (\Exception $e) {
+            $path = $this->categoriesService->forceDelete($id);
             DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
             throw $e;
         }
-        Storage::disk('public')->delete($category->category_log);
-        return redirect()->route('dashboard.categories.index')->with('delete', 'deleted this category successfly');
+        $this->removeImage($path);
+        return redirect()->route('dashboard.categories.index')->with('success', 'deleted this category successfly');
     }
-    public function uploadImage(Request $request)
+    protected function removeImage(string $path): void
     {
-        $request->merge(['slug' => Str::slug($request->name)]);
-        $data = $request->except('category_logo');
-        if ($request->hasFile('category_logo')) {
-            $data['category_logo'] = Storage::disk('public')->append('uploads/categories', $request->category_logo);
-        }
-        return $data;
-    }
-    public function getDepartmentsName()
-    {
-        $departments = Department::all();
-        foreach ($departments as $department) {
-            $dept[] = $department['department-name'];
-        }
-        return $dept;
-    }
-    public function createDepartmentCategory($data, $category)
-    {
-        foreach ($data['department'] as $department) {
-            CategoryDepartment::create([
-                'department_id' => Department::where('department-name', $department)->first()->id,
-                'category_id' => $category->id,
-            ]);
+        if ($path) {
+            Storage::disk('public')->delete($path);
         }
     }
 }

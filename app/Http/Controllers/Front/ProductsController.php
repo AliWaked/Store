@@ -2,74 +2,39 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Events\AddNewComment;
+use App\Services\Front\ProductService;
 use App\Http\Controllers\Controller;
+use App\Models\Department;
 use App\Models\Product;
 use App\Models\ProductColor;
 use App\Models\ProductUser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 use function PHPUnit\Framework\isNull;
 
 class ProductsController extends Controller
 {
-    public function show(Product $product)
+    public function __construct(protected ProductService $productService)
     {
-        $product = Product::with('colors')->where('id', $product->id)->first();
-        $sizes = ProductColor::where('product_id', $product->id)->get()->groupBy('size')->toArray();
-        return view('front.product.show', compact('product', 'sizes'));
+        //
     }
-    public function addToFavourite(Product $product)
+    public function index(Request $request, Department $department): View
     {
-        $user_id = auth()->user()->id;
-        $favourite = ($productUser = ProductUser::where('user_id', $user_id)->where('product_id', $product->id))->first();
-        if (!isset($favourite)) {
-            ProductUser::create([
-                'product_id' => $product->id,
-                'user_id' => $user_id,
-                'favourite' => 'yes',
-            ]);
-            return;
-        }
-        if ($favourite->favourite == null || $favourite->favourite == 'no') {
-            $productUser->update(['favourite' => 'yes']);
-        }
-        return;
+        return view('front.product.index', $this->productService->getProducts($department, $request->all()));
     }
-    public function removeToFavourite(Product $product)
+    public function show(Product $product): View
     {
-        $user_id = auth()->user()->id;
-        $favourite = ($productUser = ProductUser::where('user_id', $user_id)->where('product_id', $product->id))->first();
-        if (isset($favourite)) {
-            $productUser->update(['favourite' => 'no']);
-        }
+    // dd($this->productService->getDataForShowProduct($product));
+        return view('front.product.show', $this->productService->getDataForShowProduct($product));
     }
-    public function addReview(Request $request, Product $product)
+
+    public function getColorSizeForProduct(Request $request, Department $department): array
     {
-        $user_id = auth()->user()->id;
-        $request->validate([
-            'comment' => 'required|string',
-            'stars' => "required|integer|gt:0|lt:6",
-        ]);
-        $review = ($productUser = ProductUser::where('user_id', $user_id)->where('product_id', $product->id))->first();
-        if (!isset($review)) {
-            ProductUser::create([
-                'user_id' => $user_id,
-                'product_id' => $product->id,
-                'comment' => $request->comment,
-                'reviews' => $request->stars,
-                'updated_at' => Carbon::now(),
-            ]);
-        } else {
-            $productUser->update([
-                'comment' => $request->comment,
-                'reviews' => $request->stars,
-                'updated_at' => Carbon::now(),
-            ]);
-        }
-        foreach ($product->users()->get() as $user) {
-            $reviews[] = [$user->name, $user->pivot->reviews, $user->pivot->comment, \Carbon\Carbon::parse($user->pivot->updated_at)->diffForHumans()];
-        }
-        return $reviews;
+        return $this->productService->getColorSizeForProduct($department, $request->all());
     }
 }

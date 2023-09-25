@@ -2,18 +2,10 @@
     @php
         $product = new App\Models\Product();
         $route = 'dashboard.products.store';
+        $button = 'Create New Product';
     @endphp
-    @include('dashboard.products._form', [$product,$route])
+    @include('dashboard.products._form', [$product, $route])
     {{-- <x-color-size :colors="['red', 'blue', 'green', 'yellow', 'black', 'white', 'orange', 'gray']" :sizes="['xl', 'l', 'm', 's']" /> --}}
-
-
-
-
-
-
-
-
-
 
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>

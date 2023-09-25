@@ -19,11 +19,7 @@ class DashboardController extends Controller
         foreach (Department::all() as $department) {
             $count .= $department->products()->count() . ',';
             $dept_name .= $department['department-name'] . ',';
-            // $color .= "rgb"
         }
-        // $ndn = str_replace(',','',$count);
-        // $ndn = str_replace(',', '', $count);
-        // dd($count, $dept_name, $ndn);
         return view('dashboard.dashboard', compact('orders', 'count', 'dept_name'));
     }
 }

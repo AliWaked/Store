@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Colors;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('colors', function (Blueprint $table) {
             $table->id();
-            $table->enum('color_name', ['red', 'blue', 'green', 'yellow', 'black', 'white', 'orange', 'gray']);
+            $table->enum('color_name', Colors::getValues());
         });
     }
 

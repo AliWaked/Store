@@ -1,7 +1,7 @@
 (function($){
     $('#delivered').on('click',function(e){
         $.ajax({
-            url: '/orders/'+ $(this).data('order'),
+            url: '/dashboard/orders/'+ $(this).data('order'),
             method: 'put',
             data: {
                 _token: csrf_token,
@@ -14,7 +14,8 @@
             //     $(this).addClass('bg-green-500');
             //     $(this).text('delivered');
             //     console.log(response);
-            window.location.href = response;
+            window.location.href = response.url;
+            // console.log(response.bool);
             },
         })
     })

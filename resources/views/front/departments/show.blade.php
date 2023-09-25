@@ -1,8 +1,7 @@
 <x-layout>
     <section class="show w-[80%] mx-auto mt-4">
-        <div class="title font-bold text-2xl uppercase">{{ $department['department-name'] }}</div>
+        <div class="title font-semibold text-3xl uppercase">{{ $department->department_name }}</div>
         <form action="{{URL::current()}}" method="get">
-            @csrf
             <div class=" flex gap-x-4 mt-8">
                 <div class="relative w-full">
                     <span class=" absolute w-[64px] h-[3px] bg-white -top-[2px] left-3"></span>
@@ -37,13 +36,10 @@
                         class="w-full text-gray-500 rounded-lg border-gray-300 cursor-pointer capitalize "
                         data-department="{{ $department->id }}">
                         <option value="">All </option>
-                        {{-- @foreach ([] as $color)
-                            <option value="{{ $color }}">{{ $color }}</option>
-                        @endforeach --}}
                     </select>
                 </div>
                 <button type="submit"
-                    class="bg-red-500 text-white box-border w-[700px] h-12 rounded-md hover:bg-white border-2 border-red-500 hover:text-red-500 transition text-lg"><i
+                    class="bg-red-500 text-white box-border w-[700px] h-11 rounded-md hover:bg-white border-2 border-red-500 hover:text-red-500 transition text-lg"><i
                         class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </form>
@@ -64,8 +60,4 @@
         const csrf_token = "{{ csrf_token() }}";
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    {{-- <script src="{{ asset('js/color.js') }}"></script> --}}
-    <script>
-        console.log('alsl');
-    </script>
 </x-layout>

@@ -13,27 +13,35 @@
             <div class="relative">
                 <span class=" absolute w-[144px] h-[3px] bg-white -top-[2px] left-3"></span>
                 <x-input-label for="name" :value="__('Department Name *')" />
-                <x-text-input id="name" class="block mt-1 w-full" type="text" name="department-name"
-                    :value="old('department-name', $department['department-name'])" required autofocus autocomplete="name" />
-                <x-input-error :messages="$errors->get('department-name')" class="mt-2" />
+                <x-text-input id="name" class="block mt-1 w-full" type="text" name="department_name"
+                    :value="old('department_name', $department['department_name'])" required autofocus autocomplete="name" />
+                <x-input-error :messages="$errors->get('department_name')" class="mt-2" />
             </div>
             <div class="relative">
                 {{-- <span class=" absolute w-32 h-[3px] bg-white  left-3"></span> --}}
                 <label for="department-image" class="mb-2 mt-6 block text-gray-400">Department Image:</label>
                 <x-text-input id="image" class="block mt-1 w-full text-gray-400 border p-2" type="file"
-                    name="department-logo" :value="old('departemnt-logo')" required autofocus autocomplete="name" />
-                <x-input-error :messages="$errors->get('department-logo')" />
+                    name="department_logo" :value="old('department_logo')"/>
+                <x-input-error :messages="$errors->get('department_logo')" />
             </div>
             <div class="mt-4">
-                <img src="{{ asset('storage/' . $department['department-logo']) }}" alt="" class="rounded-md">
-                {{ $department['department-logo'] }}
+                <img src="{{ asset('storage/' . $department->department_logo) }}" alt="dept-image" id="department_image" class="rounded-md">
             </div>
+            <x-text-input  type="hidden" name="department_id" :value="$department->id" />
             <button type="submit"
                 class="box-border text-white bg-red-500 uppercase h-14 w-full mt-12 rounded-md hover:text-red-500 hover:border-2  hover:border-red-500 hover:bg-white transition font-semibold text-lg">
                 Update
                 The Department</button>
         </form>
     </section>
+    <x-slot:script>
+        <script>
+            document.querySelector('input#image').onchange = function() {
+                document.getElementById('department_image').classList.add('mt-4')
+                document.getElementById('department_image').src = URL.createObjectURL(this.files[0]);
+            }
+        </script>
+    </x-slot:script>
 </x-dashboard.layout>
 {{-- uploads/Departments/Ml6SfRukQQvrynNQIdvqUOrGJwSV3OZ4SGDkG2jG.png --}}
 {{-- uploads/Departments/FgQIi93yZZpMfBoZxkL5hc9H2AnQpvLQBC8PnJnI.png --}}

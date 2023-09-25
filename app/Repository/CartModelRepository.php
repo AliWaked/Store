@@ -16,28 +16,29 @@ class CartModelRepository implements CartRepository
     public function get(): Collection
     {
         if (!$this->items->count()) {
-            $this->items = Cart::with('product')->get();
+            $this->items = Cart::with(['product', 'color'])->get();
         }
         return $this->items;
     }
-    public function add($id, $options, $quantity): void
+
+    public function addOrUpdate(int $id, int $color_id, int $quantity): void
     {
-        $item = Cart::create([
+        $cart = Cart::updateOrCreate([
             'product_id' => $id,
-            'cookie_id' => Cart::getCookieId(),
+            'color_id' => $color_id,
+        ], [
             'quantity' => $quantity,
-            'options' => $options
+            'cookie_id' => Cart::getCookieId(),
         ]);
-        $this->items->push($item);
+        $this->items->push($cart);
     }
-    public function update($id, $options, $quantity): void
+    public function delete(int $id, int $color_id, string $size): void
     {
-        // dd(Cart::all()->where('product_id', $id)->where('option);
-        Cart::all()->where('product_id', $id)->where('options', $options)->first()->update(['quantity' => $quantity]);
-    }
-    public function delete($id, $options): void
-    {
-        Cart::all()->where('product_id', $id)->where('options', $options)->first()->delete();
+        Cart::where([
+            'product_id' => $id,
+            'color_id' => $color_id,
+            'size' => $size,
+        ])->delete();
     }
     public function empty(): void
     {
@@ -47,6 +48,6 @@ class CartModelRepository implements CartRepository
     {
         return $this->get()->sum(function ($item) {
             return $item->product->price;
-        });
+        }) ?? 0;
     }
 }

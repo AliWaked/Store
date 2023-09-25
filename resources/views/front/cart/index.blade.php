@@ -17,18 +17,18 @@
                 <div class="header capitalize font-semibold grid grid-cols-7 w-full text-left mb-6"
                     id="{{ $product->product->slug }}">
                     <div class="col-span-1 h-16 my-auto">
-                        <img src="{{ asset('storage/' . $product->product->product_image) }}"
-                            alt="{{ $product->product->product_image }}" class="h-full">
+                        <img src="{{ $product->product->image }}" alt="{{ $product->product->product_image }}"
+                            class="h-full">
                     </div>
                     <div class="col-span-2 h-16 flex items-center text-gray-500">{{ $product->product->product_name }}
                     </div>
                     <div class="col-span-1 h-16 flex items-center text-gray-500 ml-4 " id="subtotal">
                         ${{ $product->quantity * $product->product->price }}</div>
                     <div class="col-span-1 h-16 flex items-center text-gray-500 ml-2">
-                        {{ $size = $product->options['size'] }}</div>
+                        {{ $size = $product->size }}</div>
                     <div class="col-span-1 h-16 flex items-center text-gray-500">
-                        {{ $color = $product->options['color'] }}</div>
-                    <div class="col-span-1 h-12 remove-from-cart mt-2 text-gray-500 flex items-center rounded-md transition hover:text-red-500 cursor-pointer hover:bg-red-200 w-fit px-6"
+                        {{ $color = $product->color->color_name }}</div>
+                    <div class="col-span-1 h-12 remove-from-cart mt-2 text-gray-500 flex items-center rounded-md transition hover:text-red-500 cursor-pointer hover:bg-red-100 w-fit px-6"
                         id="remove-from-cart" data-slug="{{ $product->product->slug }}" data-size="{{ $size }}"
                         data-color="{{ $color }}">
                         <i class="fa-solid fa-xmark text-lg"></i>

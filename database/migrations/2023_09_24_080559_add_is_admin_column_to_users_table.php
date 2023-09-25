@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('department_product', function (Blueprint $table) {
-            $table->foreignId('department_id')->constrained('departments');
-            $table->foreignId('product_id')->constrained('products');
-            $table->primary(['department_id','product_id']);
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_admin')->after('email')->default(0);
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('department_product');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_admin');
+        });
     }
 };

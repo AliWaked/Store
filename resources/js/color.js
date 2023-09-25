@@ -8,14 +8,13 @@ var sizes = [];
         method:'get',
         data: {
             category: categoryId,
-            _token: csrf_token
         },
         success: function(reponse) {
         console.log(reponse);
-            $('#colors22').empty()
-            $('#colors22').append('<option value="">All</option>')
+            $('#colors22').empty();
+            $('#colors22').append('<option value="">All</option>');
             $('#sizes22').empty();
-            $('#sizes22').append('<option value="">All</option>')
+            $('#sizes22').append('<option value="">All</option>');
           reponse.forEach(size => {
           console.log(size);
             $('#sizes22').append(

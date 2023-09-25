@@ -81,8 +81,9 @@
     @php
         $route = 'dashboard.products.update';
         $put = true;
+        $button = 'Update Product';
     @endphp
-    @include('dashboard.products._form',[])
+    @include('dashboard.products._form')
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />

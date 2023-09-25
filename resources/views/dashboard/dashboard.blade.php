@@ -1,7 +1,7 @@
 <x-dashboard.layout>
     <div class="title ml-8 font-semibold text-2xl mb-4 mt-4">Dashboard </div>
     <div class="ml-8 flex gap-x-12 mt-8 text-gray-500   ">
-        <div class="w-1/3 border-b border-gray-300 flex pb-2 gap-x-2 number-of-user shadow-md px-4">
+        <div class="w-1/3 border-b border-gray-300 flex pb-2 gap-x-2 number-of-user shadow-sm px-4">
             <i
                 class="fa-solid fa-user text-blue-500 text-xl h-12 w-12 rounded-full bg-blue-100 flex justify-center items-center"></i>
             <span class="block">
@@ -10,7 +10,7 @@
                 {{ App\Models\User::all()->count() }}
             </span>
         </div>
-        <div class="w-1/3 border-b border-gray-300 flex pb-2 gap-x-2 number-of-orders shadow-md px-4">
+        <div class="w-1/3 border-b border-gray-300 flex pb-2 gap-x-2 number-of-orders shadow-sm px-4">
             <i
                 class="fa-solid fa-cart-shopping text-green-500 text-xl h-12 w-12 rounded-full bg-green-100 flex justify-center items-center"></i>
             <span class="block">
@@ -19,7 +19,7 @@
                 {{ App\Models\Order::all()->count() }}
             </span>
         </div>
-        <div class="w-1/3 border-b border-gray-300 flex pb-2 gap-x-2 number-of-products shadow-md px-4">
+        <div class="w-1/3 border-b border-gray-300 flex pb-2 gap-x-2 number-of-products shadow-sm px-4">
             <i
                 class="fa-solid fa-bag-shopping text-red-500 text-xl h-12 w-12 rounded-full bg-red-100 flex justify-center items-center"></i>
             <span class="block">
@@ -61,9 +61,9 @@
     </div>
     <div>
     </div>
-
+<x-slot:script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    
     <script>
         const ctx = document.getElementById('myChart');
         department = "{{ $dept_name }}";
@@ -98,13 +98,14 @@
             type: 'doughnut',
             data,
             // options: {
-            //     scales: {
-            //         y: {
-            //             beginAtZero: true
-            //         }
-            //     }
-            // }
-        });
-    </script>
+                //     scales: {
+                    //         y: {
+                        //             beginAtZero: true
+                        //         }
+                        //     }
+                        // }
+                    });
+                    </script>
 
+</x-slot:script>
 </x-dashboard.layout>
